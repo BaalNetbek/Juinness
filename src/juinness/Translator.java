@@ -11,10 +11,7 @@
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//http://www.gnu.org/copyleft/gpl.html
 
 package juinness;
 
@@ -27,22 +24,27 @@ import java.awt.image.BufferedImage;
 
 /**
  * The <code>Translator</code> class 
- * translates J3D into M3G scenegraph 
- *
+ * translates J3D scenegraph into M3G scenegraph 
+ * 
  * @author Markus Yliker&auml;l&auml; and Maija Savolainen
  */
-public class Translator extends GeneratedTranslator
+public class Translator
 {
-  private Util util;
+  private List list = new Vector();
+  private Util log = Util.getInstance();
+  private Traverser traverser;
+
   private float[] bias;
   private Transform transform;
   private List meshList;
+  private List meshComponentList = new Vector();
   private float[] matrix = new float[16];
   private boolean hasMatrix;
   private List data = new Vector();
-
+  private Map gHash = new HashMap();
   private Group subGroup;
   private SubAppearance appearance;
+  private BufferedImage[] bufImg;
 
   /** Number of the vertices needed to hold the coordinates */
   private int numVertices;
@@ -50,23 +52,13 @@ public class Translator extends GeneratedTranslator
   /** Number of the coordinates needed to hold the textures */
   private int numTextures;
 
-  /** All the geometries associated with this */
+  /** All the geometries associated with the next mesh */
   private List geometry;
 
-  private float[] coordinate;
-  private float[] normal;
-  private byte[] color;
-  private float[] texCoord;
-  private MutableInteger offset;
-  private MutableInteger offsetTex;
-
-  
   /**
    * Constructs this
    */ 
   public Translator(){
-    util = Util.getInstance();
-
     transform = new Transform();
     meshList = new Vector();    
     bias = new float[3];
@@ -75,32 +67,86 @@ public class Translator extends GeneratedTranslator
     }
 
     geometry = new Vector();
-    offset = new MutableInteger(0);
-    offsetTex = new MutableInteger(0);
-    coordinate = new float[3];
-    normal = new float[3];
-    color = new byte[3];
-    texCoord = new float[2];
+  }
+
+  public List translate(javax.media.j3d.SceneGraphObject j3dSceneGraph)
+    throws Exception
+  {
+    traverser = new Traverser();
+    traverser.traverse(this, j3dSceneGraph);
+    return list;
   }
 
   private void addM3G(Object obj){
     data.add(obj);
-    System.err.println("\n\n" + data);
   }
 
-  void createGroup(javax.media.j3d.BranchGroup n){
+  public void createGroup(javax.media.j3d.BranchGroup n){
     createGroup((javax.media.j3d.Group)n);
   }
 
-  void createGroup(javax.media.j3d.TransformGroup n){
+  public void createGroup(javax.media.j3d.TransformGroup n){
+    traverser.parse(n);
     createGroup((javax.media.j3d.Group)n);
   }
 
-  private Map gHash = new HashMap();
+  public void createTransform(javax.media.j3d.Transform3D n){
+    n.get(matrix);
+    hasMatrix = true;
+  }
+  
+  public void createVertexArray(javax.media.j3d.TriangleArray n){
+    numVertices += n.getVertexCount();
+    createVertexArray((javax.media.j3d.GeometryArray)n);
+  }
+
+  public void createVertexArray(javax.media.j3d.IndexedTriangleArray n){
+    numVertices += n.getValidIndexCount();
+    createVertexArray((javax.media.j3d.GeometryArray)n);
+  }
+
+  public void createVertexArray(javax.media.j3d.QuadArray n){
+    numVertices += n.getVertexCount();
+    createVertexArray((javax.media.j3d.GeometryArray)n);
+  }
+
+  public void createVertexArray(javax.media.j3d.GeometryArray n){
+    numTextures += n.getTexCoordSetCount();
+    geometry.add(n);
+  }
+  
+  public void createMesh(javax.media.j3d.Shape3D n){
+    traverser.parse(n);
+    log.logMsg("CREATE TMP MESH: " + bufImg + " " + numTextures);
+    //4. Creating the Mesh    
+    TmpMesh mesh = new TmpMesh(subGroup, list.size(), 
+			       geometry, numVertices, numTextures, appearance,
+			       bufImg);
+    meshList.add(mesh);
+    geometry.clear();
+    numVertices = 0;
+    numTextures = 0;
+
+    addM3G(mesh);
+  }
+
+  public void createAppearance(javax.media.j3d.Appearance n){
+    traverser.parse(n);
+    //3. Appearance
+    appearance = new SubAppearance(); 
+    //list.add(0, appearance);
+  }
+
+  public void createTexture(javax.media.j3d.Texture n){
+    log.logMsg("createTexture");
+    bufImg = traverser.parse(n);    
+  }
+
+  public void createMaterial(javax.media.j3d.Material n){
+    log.logMsg("NOT IMPLEMENTED YET: Material");
+  }
 
   private void createGroup(javax.media.j3d.Group n){
-    util.log("J3D->M3G javax.media.j3d.Group: " + n);
-    
     if(data.isEmpty()){
       SubWorld subWorld = new SubWorld();
       addM3G(subWorld);
@@ -116,7 +162,7 @@ public class Translator extends GeneratedTranslator
       if(hasMatrix){
 	hasMatrix = false;
 	subGroup.getTransform(transform);
-	util.showMatrix(matrix);
+	//log.showMatrix(matrix);
 	transform.set(matrix);
 	subGroup.setTransform(transform);
       }
@@ -128,72 +174,17 @@ public class Translator extends GeneratedTranslator
     }
   }
 
-  void createTransform(javax.media.j3d.Transform3D n){
-    super.createTransform(n);
-    n.get(matrix);
-    hasMatrix = true;
-  }
-
-  void createAppearance(javax.media.j3d.Appearance n){
-    super.createAppearance(n);
-    //3. Appearance
-    appearance = new SubAppearance(); 
-    //list.add(0, appearance);
-  }
-  
-  void createVertexArray(javax.media.j3d.TriangleArray n){
-    System.err.println("J3D->M3G javax.media.j3d.TriangleArray");
-    numVertices += n.getVertexCount();
-    createVertexArray((javax.media.j3d.GeometryArray)n);
-
-    //int num = n.getValidIndexCount();    
-    //int numVertex = n.getValidVertexCount();
-    //parseTriangleArray(n, vertex, normal, color,texCoord, scale);
-  }
-
-  void createVertexArray(javax.media.j3d.IndexedTriangleArray n){
-    System.err.println("J3D->M3G javax.media.j3d.IndexedTriangleArray");
-    numVertices += n.getValidIndexCount();
-    createVertexArray((javax.media.j3d.GeometryArray)n);
-
-    //int num = n.getVertexCount();
-    //int numVertex = n.getValidVertexCount();
-    //parseTriangleArray(n, vertex, normal, color,texCoord, scale);
-    //createVertexArray(num, 2);
-  }
-
-  void createVertexArray(javax.media.j3d.GeometryArray n){
-    numTextures += n.getTexCoordSetCount();
-    geometry.add(n);
-  }
-  
-  void createMesh(javax.media.j3d.Shape3D n){
-    super.createMesh(n);
-
-    //4. Creating the Mesh    
-    TmpMesh mesh = new TmpMesh(subGroup, list.size(), 
-			       geometry, numVertices, numTextures, appearance);
-    meshList.add(mesh);
-    geometry.clear();
-    numVertices = 0;
-    numTextures = 0;
-
-    addM3G(mesh);
-
-    //list.add(0, mesh);
-  }
-
   public void end(){
-    System.err.println("READY TO CREATE MESHES: " + meshList);
+    log.logMsg("READY TO CREATE MESHES numberOfMesh: " + meshList.size());
 
     //Solve the scaling factor
     //Scale to the upper limits of the 16-bit two's complement 
     //(signed short, two bytes -32768...+32767) so that we wont lose data
     //Later the inverse of this scaling factor is utilized when 
     //the meshes are constructed
-    util.log("\n++++++++++++++++++++++++++++++++++");
+    log.log("\n++++++++++++++++++++++++++++++++++");
     float max = parseMesh(meshList);
-    util.log("GOT MAX: " + max);
+    log.log("GOT MAX: " + max);
     //scaling factor
     float factor = 32767/max;    
     //inverse of the scaling factor
@@ -205,7 +196,6 @@ public class Translator extends GeneratedTranslator
       Object obj = itr.next();
       if(obj instanceof TmpMesh){
 	TmpMesh tmpMesh = (TmpMesh)obj;
-	util.log("  value: " + tmpMesh);
 	//Create 16bit meshes
 	createMesh(tmpMesh, factor, scale, bias, 2);
       }
@@ -214,46 +204,34 @@ public class Translator extends GeneratedTranslator
       }
     }
 
-    util.logMsg(list);
+    log.logMsg(list);
   }
 
   private void createMesh(TmpMesh tmpMesh, float factor, float scale, 
 			  float[] bias, int componentSize){
 
     try{
-      util.log("We are creating a Mesh Object");
-      List meshList = new Vector(); //.clear();
+      log.log("We are creating a Mesh Object from: " + tmpMesh);
 
       //Retrieve the mesh data
       int numVertices = tmpMesh.numVertices;
-      util.log("numVertices: " + numVertices);
+      log.log("  numVertices: " + numVertices);
       short[] mobileVertex = new short[numVertices*3];
       short[] mobileNormal = new short[numVertices*3];
       byte[] mobileColor = new byte[numVertices*3];
       int texCount = tmpMesh.numTextures;
       short[][] mobileTex = new short[texCount][numVertices*2];    
 
-      offset.setValue(0);
-      offsetTex.setValue(0);
-      Iterator itr = tmpMesh.geometry.iterator();
-      while(itr.hasNext()){
-	Object obj = itr.next();
-	if(obj instanceof javax.media.j3d.IndexedTriangleArray){
-	  parseTriangleArray((javax.media.j3d.IndexedTriangleArray)obj,
-			     mobileVertex, mobileNormal, 
-			     mobileColor, mobileTex, factor);
-	}
-	else if(obj instanceof javax.media.j3d.TriangleArray){
-	  parseTriangleArray((javax.media.j3d.TriangleArray)obj,
-			     mobileVertex, mobileNormal, 
-			     mobileColor, mobileTex, factor);
-	}
-	else{
-	  System.err.println("NOT IMPLEMENTED GEOMETRY: " + obj);
-	}
+      if(tmpMesh.geometry.isEmpty()){
+	System.err.println("NO SUPPORTED GEOMETRY ASSOCIATED WITH THIS MESH");
+	return;
       }
-      //util.log("OOKEE");
-
+      
+      traverser.parseGeometry(Traverser.TRIANGLE_STRIP_ARRAY, 
+			      tmpMesh.geometry.iterator(),
+			      mobileVertex, mobileNormal, 
+			      mobileColor, mobileTex, factor);
+      
       //The Mesh element consists of: 
       //VertexBuffer, IndexBuffer, Appearance[]   
       //VertexBuffer concists of: 
@@ -270,19 +248,19 @@ public class Translator extends GeneratedTranslator
 	new SubVertexArray(numVertices, 3, componentSize);
       positions.set(0, numVertices, mobileVertex);
       vertexBuf.setPositions(positions, scale, bias);
-      meshList.add(positions);	
+      meshComponentList.add(positions);	
     
       //Normal vectors must have 3 components.
       VertexArray normals = new SubVertexArray(numVertices, 3, componentSize);
       normals.set(0, numVertices, mobileNormal);
       vertexBuf.setNormals(normals);
-      meshList.add(normals);	
+      meshComponentList.add(normals);	
 
       //Colors must have 3 or 4 components, one byte each.
       VertexArray colors = new SubVertexArray(numVertices, 3, 1);
       colors.set(0, numVertices, mobileColor);
       vertexBuf.setColors(colors);
-      meshList.add(colors);
+      meshComponentList.add(colors);
 	
       //Texture coordinates must have 2 or 3 components.
       float texScale = 1.0f;
@@ -291,13 +269,14 @@ public class Translator extends GeneratedTranslator
       texBias[1] = 1.0f;
       texBias[2] = 0.0f;
       for(int i=0; i<texCount; i++){
-	util.log("texCount: " + i + "/" + texCount);
-	VertexArray texCoord = new SubVertexArray(numVertices, 2, componentSize);
+	log.log("texCount: " + i + "/" + texCount);
+	VertexArray texCoord = 
+	  new SubVertexArray(numVertices, 2, componentSize);
 	texCoord.set(0, numVertices, mobileTex[i]);
 	vertexBuf.setTexCoords(i, texCoord, texScale, texBias);
-	meshList.add(texCoord);	
+	meshComponentList.add(texCoord);	
       }
-      meshList.add(vertexBuf);
+      meshComponentList.add(vertexBuf);
 
       ///2. IndexBuffer			
       int[] stripLengths = new int[numVertices/3]; 
@@ -308,7 +287,7 @@ public class Translator extends GeneratedTranslator
       //Create Implicit TriangleStripArray
       IndexBuffer indexBuf = 
 	new SubTriangleStripArray(0, stripLengths, componentSize); 
-      meshList.add(indexBuf);	
+      meshComponentList.add(indexBuf);	
 
       //Also this is possible
       //Create Explicit TriangleStripArray
@@ -318,169 +297,57 @@ public class Translator extends GeneratedTranslator
       //3. Appearance
       SubAppearance appearance = new SubAppearance(); 
 
-      //       BufferedImage[] bufImg = absMesh.getTexture();
-      //       if(bufImg != null)
-      // 	for(int i=0; i<texCount; i++){
-      // 	  SubImage2D subImg = null;
-      // 	  SubTexture2D tex = null;
-      // 	  Material mat = null;
+      BufferedImage[] bufImg = tmpMesh.bufImg;
+      log.logMsg("\nTST TEXTURE: " + bufImg + "  texCount:" + texCount + "\n");
+      if(bufImg != null){
+      	for(int i=0; i<texCount; i++){
+	  log.logMsg("ATTACH TEXTURE: " + i);
+      	  SubImage2D subImg = null;
+      	  SubTexture2D tex = null;
+      	  Material mat = null;
 
-      // 	  byte[] palette = util.getPalette(bufImg[i]);
-      // 	  byte[] pixels = util.getPixels(bufImg[i]);
-      // 	  subImg = new SubImage2D(Image2D.RGB, 
-      // 				  bufImg[i].getWidth(),
-      // 				  bufImg[i].getHeight(), 
-      // 				  pixels,
-      // 				  palette);
-      // 	  meshList.add(subImg);
+      	  byte[] palette = log.getPalette(bufImg[i]);
+      	  byte[] pixels = log.getPixels(bufImg[i]);
+      	  subImg = new SubImage2D(Image2D.RGB, 
+      				  bufImg[i].getWidth(),
+      				  bufImg[i].getHeight(), 
+      				  pixels,
+      				  palette);
+      	  meshComponentList.add(subImg);
       
-      // 	  //SubTexture2D tex = new SubTexture2D(subImg);
-      // 	  tex = new SubTexture2D();
-      // 	  tex.setImage(subImg);
+      	  //SubTexture2D tex = new SubTexture2D(subImg);
+      	  tex = new SubTexture2D();
+      	  tex.setImage(subImg);
       
-      // 	  appearance.setTexture(i, tex);
-      // 	  meshList.add(tex);
+      	  appearance.setTexture(i, tex);
+      	  meshComponentList.add(tex);
       
-      // 	  mat = new SubMaterial();
-      // 	  appearance.setMaterial(mat);
-      // 	  meshList.add(mat);
-      // 	}
-      meshList.add(appearance);
+      	  mat = new SubMaterial();
+      	  appearance.setMaterial(mat);
+      	  meshComponentList.add(mat);
+      	}
+      }
+      
+      meshComponentList.add(appearance);
 
       //4. Creating the Mesh
       Mesh mesh = new SubMesh(vertexBuf, indexBuf, appearance);
     
       //Add the mesh into group
-      //AbsynGroup absGroup = absMesh.getGroup();        
       //SubGroup m3gGroup = (SubGroup)absGroup.getGroup();
       Group m3gGroup = tmpMesh.group;
       m3gGroup.addChild(mesh);
-      meshList.add(mesh);
-
-      //list.remove(tmpMesh.index);
-      //int off = tmpMesh.index;
+      meshComponentList.add(mesh);
       
-      for(int i=meshList.size()-1; i>-1; i--){
-	list.add(0, meshList.get(i));
+      for(int i=meshComponentList.size()-1; i>-1; i--){
+	list.add(0, meshComponentList.get(i));
       }
-
-      //return mesh;
+      meshComponentList.clear();
     }
     catch(Exception e){
       e.printStackTrace();
-      //return null;
     }
   }
-
-  /**
-   * Parses triangleArray associated with this 
-   * into concrete trianglearray
-   */ 
-  private void parseTriangleArray(javax.media.j3d.TriangleArray n, 
-  				  short[] vertex, short[] normal, 
-  				  byte[] color, short[][] texCoord, 
-  				  float scale)
-  {
-    util.log("*Mesh -> TriangleArray to TriangleArray");
-    int numVertex = n.getValidVertexCount();
-    //int texCount = n.getTexCoordSetCount();
-    int texCount = texCoord.length;
-
-    for(int i=0, k=0; i<numVertex; i++){
-      parse(offset, n,
-  	    i, i, i,
-  	    vertex, normal, color, scale);
-      parse(n, texCount, i, texCoord);
-    }
-  }
-  
-  /**
-   * Parses indexedTriangleArray associated with this 
-   * into concrete trianglearray
-   */ 
-  private void parseTriangleArray(javax.media.j3d.IndexedTriangleArray n, 
-  				  short[] vertex, short[] normal, 
-  				  byte[] color, short[][] texCoord, 
-				  float scale)
-  {
-    util.log("*Mesh -> IndexedTriangleArray to TriangleArray");
-    int numIndex = n.getValidIndexCount();
-    util.log("numIndex: " + numIndex);
-    for(int i=0; i<numIndex; i++){
-      try{
-  	parse(offset, n,
-  	      n.getCoordinateIndex(i), n.getNormalIndex(i), 
-  	      n.getColorIndex(i), 
-  	      vertex, normal, color, scale);
-	
-      }
-      catch(Exception e){
-  	parse(offset, n,
-  	      n.getCoordinateIndex(i), n.getNormalIndex(i), 
-  	      -1, 
-  	      vertex, normal, color, scale);
-      }
-    } 
-  }
-
-  /**
-   * Retrives the values
-   */
-  private final void parse(MutableInteger offset, 
-			   javax.media.j3d.GeometryArray n,
-  			   int vertexIndex, int normalIndex, 
-  			   int colorIndex, 
-  			   short[] mobileVertex, short[] mobileNormal, 
-  			   byte[] mobileColor, 
-  			   float scale){
-    n.getCoordinate(vertexIndex, coordinate);
-    n.getNormal(normalIndex, normal);    
-    if(colorIndex != -1){
-      n.getColor(colorIndex, color);
-    }
-    for(int j=0; j<3; j++, offset.value++){
-      mobileVertex[offset.value] = (short)(coordinate[j]*scale); 
-      mobileNormal[offset.value] = (short)(normal[j]);
-      if(colorIndex != -1){
-  	mobileColor[offset.value] = color[j];
-      }
-      else{
-  	mobileColor[offset.value] = 0;
-      }
-    }
-  }
-  
-  /**
-   * Parses texture coordinates
-   */
-  private final void parse(javax.media.j3d.GeometryArray n,
-			   int texCount, int texIndex, short[][] mobileTex){
-    int texSet = n.getTexCoordSetCount();
-    int texMap = n.getTexCoordSetMapLength();
-    //util.log("texSet: " + texSet + " texMap: " + texMap);
-    int[] texMapArr = new int[texMap];
-    n.getTexCoordSetMap(texMapArr);
-    //     for(int i=0; i<texMapArr.length; i++){
-    //       util.log("texMapArr i: " + i + " " + texMapArr[i]);
-    //     }
-      
-    for(int i=0; i<texSet; i++){
-      int id = texMapArr[i];
-      n.getTextureCoordinate(id, texIndex, texCoord);
-      for(int k=0; k<texCoord.length; k++, offsetTex.value++){
-  	mobileTex[i][offsetTex.value] = (short)texCoord[k];
-      }
-    }
-
-    /*
-      for(int i=0; i<texCount; i++){
-      n.getTextureCoordinate(i, texIndex, texCoord);
-      for(int k=0; k<texCoord.length; k++, offsetTex.value++){
-      mobileTex[i][offsetTex.value] = (short)texCoord[k];
-      }
-      }
-    */
-  }   
 
   /**
    * Gets the maximum offset from the origo for the meshes
@@ -489,6 +356,8 @@ public class Translator extends GeneratedTranslator
   private float parseMesh(List list){
     float min = 0, max = 0;
 
+    float[] coordinate = new float[3];
+    
     Iterator meshItr = list.iterator();
     while(meshItr.hasNext()){
       TmpMesh tmpMesh = (TmpMesh)meshItr.next();
@@ -513,14 +382,14 @@ public class Translator extends GeneratedTranslator
 	}
       }
     }
-    util.log("  min: " + min + "  max: " + max);
+    log.log("  min: " + min + "  max: " + max);
     min = Math.abs(min);
     if(min > max){
       max = min;
     }
     return max;
   }
-
+  
   /**
    * Temp class that holds mesh related data until 
    * all the Shape3D objects have been received from 
@@ -534,16 +403,18 @@ public class Translator extends GeneratedTranslator
     public SubAppearance app;
     public int numVertices;
     public int numTextures;
+    public BufferedImage[] bufImg;
     
     public TmpMesh(Group group, int index,
 		   List geometry, int numVertices, int numTextures,
-		   SubAppearance app){
+		   SubAppearance app, BufferedImage[] bufImg){
       this.group = group;
       this.index = index;
       this.geometry = new Vector(geometry);
       this.app = app;
       this.numVertices = numVertices;
       this.numTextures = numTextures;
+      this.bufImg = bufImg;
     }    
   }
 }

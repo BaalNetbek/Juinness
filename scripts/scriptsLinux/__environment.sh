@@ -4,7 +4,7 @@
 # note that these are relative not absolute paths because
 # your paths probably differs from mine
 # *************************
-export BASE=..
+export BASE=../..
 export LIB=$BASE/lib
 export SRC=$BASE/src
 export TARGET=$BASE/bin
@@ -30,9 +30,9 @@ export MOBILE=$LIB/classes.zip
 # *************************
 export J3D=$LIB/j3daudio.jar:$LIB/j3dcore.jar:$LIB/j3dutils.jar:$LIB/vecmath.jar
 # *************************
-# loader stuff e.g. CHANGE THE content of the ..models/loader.xml
+# loader stuff e.g. CHANGE THE content of the loader.xml
 # *************************
- export LOADER=$LIB/cv97r140.jar
+LOADER=%LIB%\someLoader.jar%LIB%\someOtherLoader.jar
 
 # *************************
 # The final 1) compile time and 2) run time CLASSPATH
@@ -54,11 +54,11 @@ export RT_FLAGS=-Djava.library.path=$PATH:$BASE/lib
 # Should be enough just to modify the following parameters
 # *************************
 export WTK=/opt/java/WTK2.2
-export PATH=$PATH$:../lib:$WTK/bin
+export PATH=$PATH$:$BASE/lib:$WTK/bin
 export WTK_APPS=$WTK/apps
 export WTK_LIB=$WTK/lib
-export ARG1=../models/apina.wrl
+export ARG1=$BASE/models/sphere.wrl
 export ARG2=0
 export ARG3=$WTK_APPS/Demoni/res/test.m3g
-export ARG4=../models/background.jpg
-export ARG5=../models/loader.xml
+export ARG4=$BASE/models/background.jpg
+export ARG5=$BASE/models/loader.xml

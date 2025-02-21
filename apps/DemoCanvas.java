@@ -37,6 +37,10 @@ public class DemoCanvas extends Canvas
   private Camera cam;
   private Group camGroup;
   private Transform trans;
+  private int mode;
+  private int MODE_TRANSLATE = 0;
+  private int MODE_ROT = 1;
+  private int MODE_LIFT = 2;
 
   public DemoCanvas(Demo midlet){
     this.midlet = midlet;
@@ -66,28 +70,80 @@ public class DemoCanvas extends Canvas
     world.setActiveCamera(cam);
 
     g3d = Graphics3D.getInstance();
+
+    System.err.println("mode: " + (mode+1) + "/3");
   }
 
+  protected void keyRepeated(int keyCode){ 
+    //System.err.println("keyRepeated");
+  }
+  
   protected void keyPressed(int keyCode)
   { 
     float offset = 0.1f;
+    float angle = 1.0f;
+
     camGroup.getTransform(trans);
     int gameAction = getGameAction(keyCode);
+    
     switch(gameAction){
-    case Canvas.UP:    
-      trans.postTranslate(0, 0, offset);
-      break;
-    case Canvas.DOWN:  
-      trans.postTranslate(0, 0, -offset);
-      break;
-    case Canvas.LEFT:  
-      trans.postTranslate(offset, 0, 0);
-      break;
-    case Canvas.RIGHT: 
-      trans.postTranslate(-offset, 0, 0);
-      break;
-    default: 
-      break;
+    case Canvas.FIRE:
+      mode++;
+      if(mode > 2){
+	mode = 0;
+      } 
+      System.err.println("mode: " + (mode+1) + "/3");
+      return;
+    }
+
+    if(MODE_TRANSLATE == mode){
+    
+      switch(gameAction){
+      case Canvas.UP:  
+	trans.postTranslate(0, 0, -offset);
+	break;
+      case Canvas.DOWN:  
+	trans.postTranslate(0, 0, offset);
+	break;
+      case Canvas.LEFT:  
+	trans.postTranslate(-offset, 0, 0);
+	break;
+      case Canvas.RIGHT: 
+	trans.postTranslate(offset, 0, 0);
+	break;
+      }
+    }
+    else if(MODE_ROT == mode){
+      switch(gameAction){
+      case Canvas.UP:  
+	trans.postRotate(-angle, 1.0f, 0, 0);
+	break;
+      case Canvas.DOWN:  
+	trans.postRotate(angle, 1.0f, 0, 0);
+	break;
+      case Canvas.LEFT:  
+	trans.postRotate(angle, 0, 1.0f, 0);
+	break;
+      case Canvas.RIGHT: 
+	trans.postRotate(-angle, 0, 1.0f, 0);
+	break;
+      }
+    }
+    else if(MODE_LIFT == mode){
+      switch(gameAction){
+      case Canvas.UP:  
+	trans.postTranslate(0, offset, 0);
+	break;
+      case Canvas.DOWN:  
+	trans.postTranslate(0, -offset, 0);
+	break;
+      case Canvas.LEFT:  
+	trans.postTranslate(offset, 0, 0);
+	break;
+      case Canvas.RIGHT: 
+	trans.postTranslate(-offset, 0, 0);
+	break;
+      }
     }
     camGroup.setTransform(trans);
     repaint();

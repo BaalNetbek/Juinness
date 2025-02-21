@@ -11,10 +11,7 @@
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//http://www.gnu.org/copyleft/gpl.html
 
 package juinness;
 
@@ -48,8 +45,8 @@ public class Juinness
 		  String loaderLocation)
     throws Exception
   {
-    Util util = Util.getInstance();
-    util.setLog("_expo_tst.txt");
+    Util log = Util.getInstance();
+    log.setLog("_expo_tst.txt");
   
     //Import arbitrary model from the location 
     //The vrml loader that the Importer utilizes blocks the command prompt 
@@ -60,6 +57,8 @@ public class Juinness
     Importer importer = fake.getImporter(loaderLocation);
     Scene scene = importer.load(location);
     BranchGroup model = scene.getSceneGroup();
+
+    fake.getFakeModel(model);
 
     //We could also create a more complex scenegraph programmatically
     //e.g. j3dSceneGraph = createSceneGraph(model);
@@ -75,27 +74,9 @@ public class Juinness
       return;
     }      
 
-
-    //Create abstract syntax
-    //Traverser traverser = new Traverser();
-    GeneratedTranslator translator = new Translator();
-    GeneratedTraverser traverser = new GeneratedTraverser();
-    traverser.traverse(translator, j3dSceneGraph);
-
-    List jm3dSceneGraph = translator.translate();
-      /*
-    if(true){
-      System.err.println();
-      System.exit(0);
-    }
-
-
-    Absyn absyn = null;
-
-    //Translate the J3D scenegraph to JM3D scenegraph
-    Translator trans = new Translator();
-    List jm3dSceneGraph = trans.translate(absyn);
-      */
+    //Translate J3D to M3G
+    Translator translator = new Translator();
+    List jm3dSceneGraph = translator.translate(j3dSceneGraph);
 
     //Add some additional M3G-objects e.g. camera, lights, background
     //When all of the mappings between the J3D API and M3G API
@@ -107,6 +88,9 @@ public class Juinness
     //Export scenegraph into the M3G file 
     Exporter exp = new Exporter();
     exp.export(jm3dSceneGraph, path);
+
+    //Some loaders can jam this so:
+    System.exit(0);
   }
   
   /**
@@ -125,9 +109,9 @@ public class Juinness
 	System.err.println("\nNote the usage: " +
 			   "java Juinness modelLocation showGUI " +
 			   "outputPath imageLocation loaderLocation" +
-			   "\ne.g. java Juinness ../models/coffeepot.wrl 1 " +
+			   "\ne.g. java Juinness ../models/apina.wrl 1 " +
 			   "..\\m3g\\test.m3g ../models/dogtowel.jpg " +
-			   "../models/loader.xml");
+			   "../res/loader.xml");
 	System.exit(1);
       }
     }

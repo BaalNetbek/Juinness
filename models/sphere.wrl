@@ -1,0 +1,22 @@
+#VRML V2.0 utf8
+Background {
+	skyColor 0.8 0.8 0.8
+}
+Shape {
+	appearance Appearance {
+		material Material { 
+	diffuseColor .8 .5 0
+           specularColor .9 .6 0
+           shininess .3
+           ambientIntensity .2
+
+	}
+		texture ImageTexture {
+				url "file://D:\\mun\\Juinness\\implementation\\models\\brick.bmp"
+		}
+		textureTransform TextureTransform {
+			scale 3.0 3.0
+		}
+	}
+	geometry Sphere { }
+}

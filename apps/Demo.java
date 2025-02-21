@@ -42,8 +42,17 @@ public class Demo extends MIDlet implements CommandListener
     canvas.addCommand(exitCmd);
     
     try{
-      Creator creator = new Creator();      
-      World world = creator.load("/test.m3g");      
+      World world = null;
+      String path = "/test.m3g";
+      System.err.println("Creator: Loading path: " + path);	
+      Object3D[] obj = Loader.load(path);
+      
+      for(int i=0; i<obj.length; i++){
+	if(obj[i] instanceof World){
+	  world = (World)obj[i];			    	
+	  break;
+	}
+      }
       canvas.setScene(world);
     }
     catch(Exception e){

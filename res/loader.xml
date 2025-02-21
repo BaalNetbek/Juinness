@@ -1,0 +1,25 @@
+<!-- Copyright (c) 2005 Markus Ylikerala and Maija Savolainen -->
+
+<juinness>
+
+<loader>
+  <format>vrml</format>
+  <format>wrl</format>
+  <name>my.VRML97Loader</name>
+<!--
+  <name>myOtherVRMLLoader</name>
+-->
+</loader>
+
+<!--
+<loader>
+  <format>ase</format>
+  <name>my.AseLoader</name>
+</loader>
+
+<loader>
+  <format>x3d</format>
+  <name>my.X3DLoader</name>
+</loader>
+-->
+</juinness>

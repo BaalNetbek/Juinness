@@ -11,31 +11,28 @@
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//http://www.gnu.org/copyleft/gpl.html
 
 package juinness.util;
 
 import juinness.Importer;
-
 import juinness.m3g.*;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-
 import javax.microedition.m3g.*;
-
+import javax.media.j3d.BranchGroup;
 import java.io.*;
 import java.util.*;
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.Loader;
+import com.sun.j3d.utils.image.TextureLoader;
+import java.awt.*;
 
 /**
  * This class is for developing purposes only
  *
- * @author Markus Ylikerälä and Maija Savolainen
+ * @author Markus Yliker&auml;l&auml; and Maija Savolainen
  */
 public class FakeGlue
 {
@@ -58,6 +55,54 @@ public class FakeGlue
     importer.setLoader(loaderLocation);
     return importer;
   }
+  
+
+  /** Creates a test geometry instead of coffeepot */
+  public void getFakeModel(javax.media.j3d.SceneGraphObject root){
+    Stack s = new Stack();
+    s.push(root);
+    
+    javax.media.j3d.Texture tex = 
+      loadTexture(".." + java.io.File.separator +  "models" + 
+		  java.io.File.separator +"brick_128_128.jpg", 
+		  new java.awt.Label());
+
+    while(s.isEmpty() == false){      
+      try{      
+	javax.media.j3d.SceneGraphObject n = 
+	  (javax.media.j3d.SceneGraphObject)s.pop();
+        if(n instanceof javax.media.j3d.Group){
+          javax.media.j3d.Group g = (javax.media.j3d.Group)n;
+	  for(int i=0; i<g.numChildren(); i++){
+	    s.push(g.getChild(i));
+	  }
+        }
+	else if(n instanceof javax.media.j3d.Shape3D){
+	  javax.media.j3d.Shape3D sh = (javax.media.j3d.Shape3D)n;
+	  if(sh.getAppearance() != null){
+	    if(sh.getAppearance().getTexture() == null){
+	      sh.getAppearance().setTexture(tex);
+	    }
+	  }
+	  else{
+	    javax.media.j3d.Appearance app = new javax.media.j3d.Appearance();
+	    app.setTexture(tex);
+	    sh.setAppearance(app);
+	  }
+	}
+      }
+      catch(Exception e){
+        e.printStackTrace();	
+      }
+    }
+  }
+  
+  private javax.media.j3d.Texture loadTexture(String location, Component observer){
+    TextureLoader texLoader = new TextureLoader(location, observer);
+    javax.media.j3d.Texture tex = texLoader.getTexture();
+    return tex;
+  }
+
 
   /**
    * Adds some additional M3G-objects into M3G scene graph
@@ -67,7 +112,7 @@ public class FakeGlue
     SubImage2D subImg = null;
     if(imgPath != null){
       BufferedImage bufImg = util.getImage(imgPath);
-      util.log("Loaded img: " + bufImg);
+      util.log("Loaded img: " + bufImg + " type: " + bufImg.getType());
       byte[] palette = util.getPalette(bufImg);
       byte[] pixels = util.getPixels(bufImg);
       subImg = new SubImage2D(Image2D.RGB, 
