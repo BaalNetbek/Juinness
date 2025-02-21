@@ -1,6 +1,6 @@
 //Created 2004-10-27
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ import com.sun.j3d.loaders.Scene;
  * @see Importer
  * @see Exporter
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class Juinness
 {

@@ -1,6 +1,6 @@
 //Created 2004-10-28
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ import com.sun.j3d.utils.geometry.*;
  * The <code>Traverser</code> class traverses and chops 
  * Java 3D (J3D) scenegraph
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class Traverser
 { 

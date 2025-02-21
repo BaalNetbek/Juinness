@@ -1,6 +1,6 @@
 //Created 2004-11-11
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ import javax.media.j3d.Transform3D;
  *
  * In addition it contains some other utility methods 
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public final class Util
 {
@@ -59,7 +59,7 @@ public final class Util
    */
   public final  byte[] getFileIdentifier()
   {
-    //{ '«', 'J', 'S', 'R', '1', '8', '4', '»', '\r', '\n', '\x1A', '\n' }
+    //{ 'ï¿½', 'J', 'S', 'R', '1', '8', '4', 'ï¿½', '\r', '\n', '\x1A', '\n' }
     int[] fileIdentifier = {0xAB, 0x4A, 0x53, 0x52, 0x31, 0x38, 
 			    0x34, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A};
 

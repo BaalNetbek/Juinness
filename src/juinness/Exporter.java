@@ -1,6 +1,6 @@
 //Created 2004-10-24
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ import javax.media.j3d.BranchGroup;
  * Mobile 3D Graphics (M3G) (JSR-184) file format and
  * exports the result as a M3G file into the file system
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class Exporter
 {
@@ -1786,7 +1786,7 @@ public class Exporter
       byte[] byteValues = n.getByteValues();
       short[] int16Values = n.getInt16Values();
 
-      //THIS SUCKS, ¤&@%#¤&, BUT IT IS DONE ACCORDING TO THE SPECS 
+      //THIS SUCKS, ï¿½&@%#ï¿½&, BUT IT IS DONE ACCORDING TO THE SPECS 
       //INSTEAD WE SHOULD OPTIMIZE =)
       for(int i=0; i<vertexCount; i++){
 	if(componentSize == 1){

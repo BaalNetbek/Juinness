@@ -1,6 +1,6 @@
 //Created 2004-11-27
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@ import javax.microedition.m3g.Appearance;
 /**
  * SubAppearance is a decodator for the Appearance
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class SubAppearance extends Appearance implements Sub
 {  

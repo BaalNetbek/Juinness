@@ -1,6 +1,6 @@
 //Created 2004-12-03
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ import javax.microedition.m3g.Object3D;
 /**
  * SubTexture2D is a decodator for the Texture2D
  *
- * There is a %"¤&%#"¤& bug in the JSR-184 that forbids to 
+ * There is a %"ï¿½&%#"ï¿½& bug in the JSR-184 that forbids to 
  * extends this from the Texture2D object
  *
  * Exception in thread "main" java.lang.UnsatisfiedLinkError: log2
@@ -32,7 +32,7 @@ import javax.microedition.m3g.Object3D;
  *        at javax.microedition.m3g.Texture2D.<init>(Unknown Source)
  *        at juinness.m3g.SubTexture2D.<init>(SubTexture2D.java:15)
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class SubTexture2D extends FakeTexture2D implements Sub
 //public class SubTexture2D extends Texture2D implements Sub

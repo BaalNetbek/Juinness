@@ -1,6 +1,6 @@
 //Created 2004-10-24
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -15,20 +15,16 @@
 
 package juinness.util;
 
-import juinness.Exporter;
-
 import java.io.*;
-import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.zip.*;
-import javax.microedition.m3g.*;
-import java.util.*;
+import juinness.Exporter;
 
 /**
  * Imports a M3G-file and interprets its content
  * this is used for development purposes only
  *
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class Checker
 {

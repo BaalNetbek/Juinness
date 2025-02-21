@@ -1,6 +1,6 @@
 //Created 2004-12-03
 //
-//Copyright (C) 2004  Markus Yliker‰l‰ and Maija Savolainen
+//Copyright (C) 2004  Markus Yliker√§l√§ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@ package javax.microedition.m3g;
 /**
  * The FakeTexture class
  *
- * @author Markus Yliker‰l‰ and Maija Savolainen
+ * @author Markus Yliker√§l√§ and Maija Savolainen
  *
  * @see juinness.m3g.SubTexture2D
  */

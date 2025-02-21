@@ -1,6 +1,6 @@
 //Created 2004-10-24
 //
-//Copyright (C) 2004  Markus Ylikerälä and Maija Savolainen
+//Copyright (C) 2004  Markus Ylikerï¿½lï¿½ and Maija Savolainen
 //
 //This program is free software; you can redistribute it and/or
 //modify it under the terms of the GNU General Public License
@@ -92,7 +92,7 @@ import org.w3c.dom.*;
  * BranchGroup model = scene.getSceneGroup();
  * </pre></blockquote><p>
  * 
- * @author Markus Yliker&auml;l&auml; and Maija Savolainen
+ * @author Markus YlikerÃ¤lÃ¤ and Maija Savolainen
  */
 public class Importer
 {
