@@ -19,7 +19,6 @@
 package juinness.util;
 
 import juinness.m3g.*;
-import juinness.absyn.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -146,189 +145,173 @@ public class GUI extends JPanel implements ActionListener
     validate();
   }
 
-  public void showGUI(Absyn absyn){
-    BranchGroup sceneRoot;
-    sceneRoot = new BranchGroup();
+//   public void showGUI(Absyn absyn){
+//     BranchGroup sceneRoot;
+//     sceneRoot = new BranchGroup();
 
-    //Add model to the scenGraph
-//     model.setUserData(new MutableInteger(sceneRoot.numChildren()));
-//     TransformGroup tg = new TransformGroup();
-//     tg.addChild(model);
-//     sceneRoot.addChild(tg);   
+//     //Add model to the scenGraph
+// //     model.setUserData(new MutableInteger(sceneRoot.numChildren()));
+// //     TransformGroup tg = new TransformGroup();
+// //     tg.addChild(model);
+// //     sceneRoot.addChild(tg);   
 
-    //Create background 
-    Color3f color = new Color3f(0.4f, 0.4f, 0.6f);
-    Background bg = new Background(color);
-    bg.setApplicationBounds(bounds);
-    sceneRoot.addChild(bg);
+//     //Create background 
+//     Color3f color = new Color3f(0.4f, 0.4f, 0.6f);
+//     Background bg = new Background(color);
+//     bg.setApplicationBounds(bounds);
+//     sceneRoot.addChild(bg);
 
-    //Create lights
-    createLights(sceneRoot, bounds);
+//     //Create lights
+//     createLights(sceneRoot, bounds);
 
-    BoundingSphere bounds = 
-      new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 5.0);
+//     BoundingSphere bounds = 
+//       new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 5.0);
 
     
-    createCtrl();
-//     MutableInteger id = (MutableInteger)model.getUserData();
-//     TransformGroup tg = (TransformGroup)sceneRoot.getChild(id.value);
-//     setModelCapability(tg);
+//     createCtrl();
+// //     MutableInteger id = (MutableInteger)model.getUserData();
+// //     TransformGroup tg = (TransformGroup)sceneRoot.getChild(id.value);
+// //     setModelCapability(tg);
 
-    translate(absyn, sceneRoot);
+//     translate(absyn, sceneRoot);
 
-    //sceneRoot.addChild(new ColorCube(0.1f));
-    SimpleUniverse universe = createUniverse();
+//     //sceneRoot.addChild(new ColorCube(0.1f));
+//     SimpleUniverse universe = createUniverse();
 
-    //Move the viewpoint 
-    TransformGroup vpTrans = 
-      universe.getViewingPlatform().getViewPlatformTransform();
-    Vector3f translate = new Vector3f();
-    translate.set(0.0f, 2.0f, 20.0f);
-    Transform3D T3D = new Transform3D();
-    T3D.setTranslation(translate); 
-    vpTrans.setTransform(T3D);
+//     //Move the viewpoint 
+//     TransformGroup vpTrans = 
+//       universe.getViewingPlatform().getViewPlatformTransform();
+//     Vector3f translate = new Vector3f();
+//     translate.set(0.0f, 2.0f, 20.0f);
+//     Transform3D T3D = new Transform3D();
+//     T3D.setTranslation(translate); 
+//     vpTrans.setTransform(T3D);
     
-    //translate.set(0.0f, 0.3f, 0.0f); // 3 meter elevation
-    //T3D.setTranslation(translate); // set as translation
-    //vpTrans.setTransform(T3D); // used for initial position
-    KeyNavigatorBehavior keyNavBeh = new KeyNavigatorBehavior(vpTrans);
-    keyNavBeh.setSchedulingBounds(new BoundingSphere(new Point3d(),1000.0));
-    sceneRoot.addChild(keyNavBeh);
+//     //translate.set(0.0f, 0.3f, 0.0f); // 3 meter elevation
+//     //T3D.setTranslation(translate); // set as translation
+//     //vpTrans.setTransform(T3D); // used for initial position
+//     KeyNavigatorBehavior keyNavBeh = new KeyNavigatorBehavior(vpTrans);
+//     keyNavBeh.setSchedulingBounds(new BoundingSphere(new Point3d(),1000.0));
+//     sceneRoot.addChild(keyNavBeh);
 
-    sceneRoot.compile();
+//     sceneRoot.compile();
 
-    universe.addBranchGraph(sceneRoot);
-    validate();
-  }
+//     universe.addBranchGraph(sceneRoot);
+//     validate();
+//   }
 
-  public void translate(Absyn absyn, BranchGroup sceneRoot){
-    List mesh = new Vector();
-    List data = absyn.getAbsyn();
-    //list = new Vector();
+//   public void translate(Absyn absyn, BranchGroup sceneRoot){
+//     List mesh = new Vector();
+//     List data = absyn.getAbsyn();
+//     //list = new Vector();
 
-    //Get the meshes so that they can be scaled uniformly
-    Iterator itr = data.iterator();
-    while(itr.hasNext()){
-      Object value = itr.next();
-      if(value instanceof AbsynMesh){
-	mesh.add(value);
-      }
-    }
-
-    float max, factor, scale;
-    if(!true){
-      max = 1.0f; 
-      factor = 10.0f; 
-      scale = 1.0f; 
-    }
-    else{
-      max = parseMesh(mesh);
-      factor = 32767/max;    
-      scale = max/32767;
-    }
-
-    float[] bias = new float[3];
-    for(int i=0; i<bias.length; i++){
-      bias[i] = 0.0f;
-    }
-
-    Material material;
-    Color3f ambientCol = new Color3f(0.1f, 0.1f, 0.1f);
-    Color3f diffuseCol = new Color3f(0.6f, 0.6f, 0.6f);
-    Color3f specularCol = new Color3f(0.3f, 0.3f, 0.3f);
-    float shininess = 10f;
-    float[][] color2 = {{1.0f, 0.0f, 0.0f},
-		       {0.0f, 1.0f, 0.0f},
-		       {0.2f, 0.5f, 0.5f},
-		       {0.2f, 0.5f, 0.5f},
-		       {1.0f, 0.0f, 1.0f},
-		       {1.0f, 0.0f, 1.0f},
-		       {0.0f, 0.0f, 0.0f}};
-
-    //List data = absyn.getAbsyn();
-    itr = data.iterator();
-    int colID = 0;
-    while(itr.hasNext()){
-      Object value = itr.next();
-      if(value instanceof AbsynMesh){
-	TransformGroup tg = new TransformGroup();
-	System.err.println("CreateMesh");
-	Shape3D shape = createShape((AbsynMesh)value);
-	Appearance app = shape.getAppearance();
-	Color3f emissiveCol = new Color3f(color2[colID++]);
-	material = new Material(ambientCol, emissiveCol, diffuseCol, 
-				specularCol, shininess);
-	material.setLightingEnable(true);
-	app.setMaterial(material);	
-
-	tg.addChild(shape);
-	addMouseControl(sceneRoot, bounds, tg);
-	sceneRoot.addChild(tg);
-      }
-    }
-
-
-//     itr = data.iterator();
+//     //Get the meshes so that they can be scaled uniformly
+//     Iterator itr = data.iterator();
 //     while(itr.hasNext()){
 //       Object value = itr.next();
-//       util.log("  value: " + value);
-
-//       //Scale all of the meshes uniformly
 //       if(value instanceof AbsynMesh){
-// 	createMesh((AbsynMesh)value, factor, scale, bias);
-//       }
-//       else{
-// 	list.add(value);
+// 	mesh.add(value);
 //       }
 //     }
-    //return list;
-  }
 
-  /**
-   * Gets the maximum offset from the origo for the meshes
-   * for scaling purposes
-   */
-  private float parseMesh(List list){
-    log("ParseMesh: " + list);
-    Object[] arr = list.toArray();
-    float min = 0, max = 0;
-    for(int i=0; i<arr.length; i++){
-      AbsynMesh m = (AbsynMesh)arr[i];
-      if(m.getMin() < min){
-	min = m.getMin();
-      }
-      if(m.getMax() > max){
-	max = m.getMax();
-      }      
-    }
-    log("  min: " + min + "  max: " + max);
-    min = Math.abs(min);
-    if(min > max){
-      max = min;
-    }
-    return max;
-  }
+//     float max, factor, scale;
+//     if(!true){
+//       max = 1.0f; 
+//       factor = 10.0f; 
+//       scale = 1.0f; 
+//     }
+//     else{
+//       max = parseMesh(mesh);
+//       factor = 32767/max;    
+//       scale = max/32767;
+//     }
 
-  private Shape3D createShape(AbsynMesh mesh){
+//     float[] bias = new float[3];
+//     for(int i=0; i<bias.length; i++){
+//       bias[i] = 0.0f;
+//     }
+
+//     Material material;
+//     Color3f ambientCol = new Color3f(0.1f, 0.1f, 0.1f);
+//     Color3f diffuseCol = new Color3f(0.6f, 0.6f, 0.6f);
+//     Color3f specularCol = new Color3f(0.3f, 0.3f, 0.3f);
+//     float shininess = 10f;
+//     float[][] color2 = {{1.0f, 0.0f, 0.0f},
+// 		       {0.0f, 1.0f, 0.0f},
+// 		       {0.2f, 0.5f, 0.5f},
+// 		       {0.2f, 0.5f, 0.5f},
+// 		       {1.0f, 0.0f, 1.0f},
+// 		       {1.0f, 0.0f, 1.0f},
+// 		       {0.0f, 0.0f, 0.0f}};
+
+//     //List data = absyn.getAbsyn();
+//     itr = data.iterator();
+//     int colID = 0;
+//     while(itr.hasNext()){
+//       Object value = itr.next();
+//       if(value instanceof AbsynMesh){
+// 	TransformGroup tg = new TransformGroup();
+// 	System.err.println("CreateMesh");
+// 	Shape3D shape = createShape((AbsynMesh)value);
+// 	Appearance app = shape.getAppearance();
+// 	Color3f emissiveCol = new Color3f(color2[colID++]);
+// 	material = new Material(ambientCol, emissiveCol, diffuseCol, 
+// 				specularCol, shininess);
+// 	material.setLightingEnable(true);
+// 	app.setMaterial(material);	
+
+// 	tg.addChild(shape);
+// 	addMouseControl(sceneRoot, bounds, tg);
+// 	sceneRoot.addChild(tg);
+//       }
+//     }
+//   }
+
+//   /**
+//    * Gets the maximum offset from the origo for the meshes
+//    * for scaling purposes
+//    */
+//   private float parseMesh(List list){
+//     log("ParseMesh: " + list);
+//     Object[] arr = list.toArray();
+//     float min = 0, max = 0;
+//     for(int i=0; i<arr.length; i++){
+//       AbsynMesh m = (AbsynMesh)arr[i];
+//       if(m.getMin() < min){
+// 	min = m.getMin();
+//       }
+//       if(m.getMax() > max){
+// 	max = m.getMax();
+//       }      
+//     }
+//     log("  min: " + min + "  max: " + max);
+//     min = Math.abs(min);
+//     if(min > max){
+//       max = min;
+//     }
+//     return max;
+//   }
+
+//   private Shape3D createShape(AbsynMesh mesh){
     
-    float[] vertex = null; //mesh.getVertex();
-    TriangleArray arr = new TriangleArray(vertex.length/3, 
-					  GeometryArray.COORDINATES |
-					  GeometryArray.NORMALS);
-    arr.setCoordinates(0, vertex);
+//     float[] vertex = null; //mesh.getVertex();
+//     TriangleArray arr = new TriangleArray(vertex.length/3, 
+// 					  GeometryArray.COORDINATES |
+// 					  GeometryArray.NORMALS);
+//     arr.setCoordinates(0, vertex);
 
-    GeometryInfo gi = new GeometryInfo(arr);
-    NormalGenerator ng = new NormalGenerator();
-    ng.generateNormals(gi);
-    Stripifier st = new Stripifier();
-    st.stripify(gi);
-    GeometryArray result = gi.getGeometryArray();    
-    //Shape3D s = new Shape3D(result, textures[texID]);
-    Shape3D s = new Shape3D(result);
-    s.setAppearance(new Appearance());
-    return s;
-    //return new Shape3D(arr);
-  }
+//     GeometryInfo gi = new GeometryInfo(arr);
+//     NormalGenerator ng = new NormalGenerator();
+//     ng.generateNormals(gi);
+//     Stripifier st = new Stripifier();
+//     st.stripify(gi);
+//     GeometryArray result = gi.getGeometryArray();    
+//     //Shape3D s = new Shape3D(result, textures[texID]);
+//     Shape3D s = new Shape3D(result);
+//     s.setAppearance(new Appearance());
+//     return s;
+//     //return new Shape3D(arr);
+//   }
 
   /**
    * Creates GUI

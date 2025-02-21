@@ -18,12 +18,12 @@ SET BIN=.\bin
 SET API_PATH=..\api
 
 SET PACKAGE_JUINNESS=.\juinness\*.java
-SET PACKAGE_ABSYN=.\juinness\absyn\*.java
 SET PACKAGE_M3G=.\juinness\m3g\*.java
 SET PACKAGE_UTIL=.\juinness\util\*.java
 SET PACKAGE_FAKE=.\javax\microedition\m3g\FakeTexture2D.java
+SET PACKAGE_GEN=.\juinness\CodeGenerator.java
 
-SET SOURCES=%PACKAGE_FAKE% %PACKAGE_JUINNESS% %PACKAGE_ABSYN% %PACKAGE_M3G% %PACKAGE_UTIL% 
+SET SOURCES=%PACKAGE_FAKE% %PACKAGE_JUINNESS% %PACKAGE_M3G% %PACKAGE_UTIL%
 
 REM *************************
 REM jm3d stuff

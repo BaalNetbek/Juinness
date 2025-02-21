@@ -19,7 +19,6 @@
 package juinness;
 
 import juinness.util.*;
-import juinness.absyn.Absyn;
 
 import javax.media.j3d.BranchGroup;
 import java.util.List;
@@ -32,7 +31,7 @@ import com.sun.j3d.loaders.Scene;
  * @see Importer
  * @see Exporter
  *
- * @author Markus Ylikerälä and Maija Savolainen
+ * @author Markus Yliker&auml;l&auml; and Maija Savolainen
  */
 public class Juinness
 {
@@ -76,13 +75,27 @@ public class Juinness
       return;
     }      
 
+
     //Create abstract syntax
-    Traverser traverser = new Traverser();
-    Absyn absyn = traverser.traverse(j3dSceneGraph);
+    //Traverser traverser = new Traverser();
+    GeneratedTranslator translator = new Translator();
+    GeneratedTraverser traverser = new GeneratedTraverser();
+    traverser.traverse(translator, j3dSceneGraph);
+
+    List jm3dSceneGraph = translator.translate();
+      /*
+    if(true){
+      System.err.println();
+      System.exit(0);
+    }
+
+
+    Absyn absyn = null;
 
     //Translate the J3D scenegraph to JM3D scenegraph
     Translator trans = new Translator();
     List jm3dSceneGraph = trans.translate(absyn);
+      */
 
     //Add some additional M3G-objects e.g. camera, lights, background
     //When all of the mappings between the J3D API and M3G API

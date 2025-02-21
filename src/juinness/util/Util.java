@@ -484,6 +484,11 @@ public final class Util
   {
     log(msg, show);
   }  
+
+  public final void logMsg(Object msg)
+  {
+    log(msg, show);
+  }  
   
   public final void log(Object msg, boolean flag)
   {
