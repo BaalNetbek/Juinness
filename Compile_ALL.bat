@@ -1,0 +1,1 @@
+call __compiler.bat
